@@ -34,7 +34,7 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"/>
-
+    <!--
     <Spinner
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -49,4 +49,5 @@
         android:spinnerMode="dropdown"
         android:entries="@array/filter"
         android:prompt="@string/filter_prompt" />
+    -->
 </RelativeLayout>

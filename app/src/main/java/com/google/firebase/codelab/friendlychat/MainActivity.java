@@ -62,7 +62,7 @@ import java.util.Date;
 
 
 public class MainActivity extends AppCompatActivity
-        implements GoogleApiClient.OnConnectionFailedListener, OnItemSelectedListener {
+        implements GoogleApiClient.OnConnectionFailedListener {
 
 
 
@@ -121,8 +121,8 @@ public class MainActivity extends AppCompatActivity
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
         //Filtering Menu
-        Spinner spinner1 = (Spinner) findViewById(R.id.spinner1);
-        spinner1.setOnItemSelectedListener(this);
+        //Spinner spinner1 = (Spinner) findViewById(R.id.spinner1);
+        //spinner1.setOnItemSelectedListener(this);
 
         displayFirebaseQuery();
 
@@ -151,14 +151,17 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        locFilter = adapterView.getItemAtPosition(i).toString();
-        displayFirebaseQuery();
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
     }
 
     @Override
-    public void onNothingSelected(AdapterView<?> adapterView) {
-
+    public boolean onOptionsItemSelected(MenuItem item) {
+        locFilter = item.getTitle().toString();
+        displayFirebaseQuery();
+        return true;
     }
 
 

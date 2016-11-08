@@ -2,20 +2,22 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/sign_out_menu"
-        android:title="@string/sign_out"
+        android:id="@+id/all"
+        android:title="All"
         app:showAsAction="never"/>
-    <!--
+
     <item
-        android:id="@+id/fresh_config_menu"
-        android:title="@string/fresh_config"
+        android:id="@+id/kccf_gate1"
+        android:title="kccf gate1"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/the_park"
+        android:title="The Park"
         app:showAsAction="never"/>
     <item
-        android:id="@+id/invite_menu"
-        android:title="@string/invite_menu_label"
+        android:id="@+id/park_main"
+        android:title="Park-Main"
         app:showAsAction="never"/>
-    <item
-        android:id="@+id/crash_menu"
-        android:title="@string/cause_crash"/>
-        -->
+
 </menu>
