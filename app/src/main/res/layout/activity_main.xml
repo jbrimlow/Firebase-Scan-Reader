@@ -25,24 +25,6 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:orientation="horizontal">
-		
-		<!--
-        <EditText
-            android:id="@+id/messageEditText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"/>
-
-        <Button
-            android:id="@+id/sendButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:enabled="false"
-            android:text="SEND"/>
-			-->
-
     </LinearLayout>
 
     <ProgressBar
@@ -52,4 +34,19 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"/>
+
+    <Spinner
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/spinner1"
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="75dp"
+        android:layout_marginEnd="75dp"
+        android:layout_marginBottom="30dp"
+        android:layout_alignParentTop="true"
+        android:spinnerMode="dropdown"
+        android:entries="@array/filter"
+        android:prompt="@string/filter_prompt" />
 </RelativeLayout>
