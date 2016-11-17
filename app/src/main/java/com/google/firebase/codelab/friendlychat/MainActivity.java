@@ -112,7 +112,6 @@ public class MainActivity extends AppCompatActivity
     ArrayList<String> locFilter = new ArrayList<>();
     ArrayList<Integer> selectedIndices;
 
-    String id;
     HashMap<String, String> workerHashMap;
 
     @Override
@@ -285,11 +284,13 @@ public class MainActivity extends AppCompatActivity
                 //mFirebaseDatabaseReference.child("scans").orderByChild("scantime").startAt("end"-100)) {
 
             //override of method for anon inner class
+            String id;
             @Override
             protected void populateViewHolder(final MessageViewHolder viewHolder, Scan model, int position) {
                 mProgressBar.setVisibility(ProgressBar.INVISIBLE);
                 if(locFilter.contains(model.location)) {
                     id = model.workerid;
+                    Log.w(TAG, "WORKER ID IS" + id);
                     id = id.replaceFirst("^0+(?!$)", "");
 
                     if(workerHashMap.containsKey(id)){
@@ -299,8 +300,8 @@ public class MainActivity extends AppCompatActivity
                             viewHolder.messageTextView.setText(workerHashMap.get(id));
                         }
                     } else {
-                        //final String id2 = "20150100444";  //for testing, this is jesus gomez
                         //query firebase for worker name
+                        //remember it's asynch
                         Query workerQuery = mFirebaseDatabaseReference.child("workers").orderByChild("gateScanId").startAt(id).endAt(id);
                         workerQuery.addValueEventListener(new ValueEventListener() {
                             @Override
@@ -311,12 +312,11 @@ public class MainActivity extends AppCompatActivity
                                 if (worker != null) {
                                     name = worker.firstname + " " + worker.lastname;
                                     workerHashMap.put(id, name);
+                                    viewHolder.messageTextView.setText(name);
                                 }
                                 if (name.equals("")) {
-                                    name = id;
                                     workerHashMap.put(id, null);
                                 }
-                                viewHolder.messageTextView.setText(name);
                             }
 
                             @Override
@@ -324,6 +324,7 @@ public class MainActivity extends AppCompatActivity
 
                             }
                         });
+                        viewHolder.messageTextView.setText(id);
                     }
                     Date scanned = new Date(model.scantime);
                     String about = model.location + ", " + scanned.toString();
