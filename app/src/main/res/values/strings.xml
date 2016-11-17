@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Firebase Viewer</string>
+    <string name="app_name">Veriwolf Gate Viewer</string>
     <string name="welcome_msg">Welcome!</string>
     <string name="contacts_permission_rationale">Access to account information is required to sign in.</string>
     <string name="invite_menu_label">Invite</string>
@@ -10,10 +10,18 @@
     <string name="sign_up">Sign Up</string>
     <string name="banner_ad_unit_id" translatable="false">ca-app-pub-3940256099942544/6300978111</string>
     <string name="filter_prompt">choose a filter</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
     <string-array name="filter">
-        <item>All</item>
-        <item>kccf gate1</item>
+        <item>Test Gate</item>
+        <item>Demo-Gate</item>
         <item>The Park</item>
         <item>Park-Main</item>
+        <item>Park-2</item>
+        <item>Kern-Lock</item>
+        <item>Kern-Wide1</item>
+        <item>Kern-Wide2</item>
+        <item>kccf gate1</item>
+        <item>SDG-Test1</item>
     </string-array>
 </resources>

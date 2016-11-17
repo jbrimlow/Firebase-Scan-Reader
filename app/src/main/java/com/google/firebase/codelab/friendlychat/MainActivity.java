@@ -15,11 +15,17 @@
  */
 package com.google.firebase.codelab.friendlychat;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -53,12 +59,18 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.firebase.ui.database.*;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
 
-import java.util.Date;
+import java.lang.reflect.Array;
+import java.util.*;
 
 
 public class MainActivity extends AppCompatActivity
@@ -93,10 +105,15 @@ public class MainActivity extends AppCompatActivity
     private FirebaseListAdapter<Scan> mListAdapter;
 
 
-    //my settings
+    //settings
     private int tagCount = 100;
-    String locFilter = "All";           //default to no filtering
+    ArrayList<String> gateNames = new ArrayList<>();
+    ArrayList<String> gates = new ArrayList<>(5);
+    ArrayList<String> locFilter = new ArrayList<>();
+    ArrayList<Integer> selectedIndices;
 
+    String id;
+    HashMap<String, String> workerHashMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,9 +137,54 @@ public class MainActivity extends AppCompatActivity
         // New child entries
         mFirebaseDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
-        //Filtering Menu
-        //Spinner spinner1 = (Spinner) findViewById(R.id.spinner1);
-        //spinner1.setOnItemSelectedListener(this);
+//        Query locQuery = mFirebaseDatabaseReference.child("locations").orderByChild("name");
+//        locQuery.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()){
+//                    Location location = postSnapshot.getValue(Location.class);
+//                    gateNames.add(location.deviceName);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+
+
+        workerHashMap = new HashMap<>();
+
+        Query workerQuery = mFirebaseDatabaseReference.child("workers").orderByChild("gateScanId");
+        workerQuery.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()){
+                    Worker worker = postSnapshot.getValue(Worker.class);
+                    String name = worker.firstname + " " + worker.lastname;
+                    workerHashMap.put(worker.gateScanId, name);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        gates.add("Test Gate");
+        gates.add("Demo-Gate");
+        gates.add("The Park");
+        gates.add("Park-Main");
+        gates.add("Park-2");
+        gates.add("Kern-Lock");
+        gates.add("Kern-Wide1");
+        gates.add("Kern-Wide2");
+        gates.add("kccf gate1");
+        gates.add("SDG-Test1");
+        locFilter = gates;
+        workerHashMap = new HashMap<>();
 
         displayFirebaseQuery();
 
@@ -159,11 +221,51 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        locFilter = item.getTitle().toString();
-        displayFirebaseQuery();
+        showFilterDialog();
         return true;
     }
 
+    public void showFilterDialog(){
+        selectedIndices = new ArrayList<>();
+        boolean[] chosen = new boolean[gates.size()];
+        for (int j = 0; j < chosen.length; j++){
+            if (locFilter.contains(gates.get(j))) {
+                chosen[j] = true;
+                selectedIndices.add(j);
+            }
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(this,R.style.AlertDialogTheme);
+        builder.setTitle("Choose gates");
+        builder.setMultiChoiceItems(R.array.filter, chosen, new DialogInterface.OnMultiChoiceClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int which, boolean isChecked) {
+                        if (isChecked && !selectedIndices.contains(which)) {
+                            selectedIndices.add(which);
+                        } else if (selectedIndices.contains(which)) {
+                            selectedIndices.remove(Integer.valueOf(which));
+                        }
+
+                    }
+                });
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        locFilter = new ArrayList<String>();
+                        for (Integer k : selectedIndices){
+                            locFilter.add(gates.get(k));
+                        }
+
+                        displayFirebaseQuery();
+                    }
+                });
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        //remove AlertDialog
+                    }
+                });
+        builder.show();
+    }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
@@ -173,19 +275,56 @@ public class MainActivity extends AppCompatActivity
         Toast.makeText(this, "Google Play Services error.", Toast.LENGTH_SHORT).show();
     }
 
+
     private void displayFirebaseQuery() {
         mFirebaseAdapter = new FirebaseRecyclerAdapter<Scan, MessageViewHolder>(
                 Scan.class,
                 R.layout.item_message,
                 MessageViewHolder.class,
                 mFirebaseDatabaseReference.child("scans").limitToLast(tagCount).orderByChild("scantime")) {
+                //mFirebaseDatabaseReference.child("scans").orderByChild("scantime").startAt("end"-100)) {
 
             //override of method for anon inner class
             @Override
-            protected void populateViewHolder(MessageViewHolder viewHolder, Scan model, int position) {
+            protected void populateViewHolder(final MessageViewHolder viewHolder, Scan model, int position) {
                 mProgressBar.setVisibility(ProgressBar.INVISIBLE);
-                if(locFilter.equals("All") || model.location.equals(locFilter)) {
-                    viewHolder.messageTextView.setText(model.workerid);
+                if(locFilter.contains(model.location)) {
+                    id = model.workerid;
+                    id = id.replaceFirst("^0+(?!$)", "");
+
+                    if(workerHashMap.containsKey(id)){
+                        if(workerHashMap.get(id) == null) {
+                            viewHolder.messageTextView.setText(id);
+                        } else {
+                            viewHolder.messageTextView.setText(workerHashMap.get(id));
+                        }
+                    } else {
+                        //final String id2 = "20150100444";  //for testing, this is jesus gomez
+                        //query firebase for worker name
+                        Query workerQuery = mFirebaseDatabaseReference.child("workers").orderByChild("gateScanId").startAt(id).endAt(id);
+                        workerQuery.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                String name = "";
+                                Worker worker = dataSnapshot.child(id).getValue(Worker.class);
+
+                                if (worker != null) {
+                                    name = worker.firstname + " " + worker.lastname;
+                                    workerHashMap.put(id, name);
+                                }
+                                if (name.equals("")) {
+                                    name = id;
+                                    workerHashMap.put(id, null);
+                                }
+                                viewHolder.messageTextView.setText(name);
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
                     Date scanned = new Date(model.scantime);
                     String about = model.location + ", " + scanned.toString();
                     viewHolder.messengerTextView.setText(about);

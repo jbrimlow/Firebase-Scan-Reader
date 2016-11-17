@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
+    <!--
     <item
         android:id="@+id/all"
         android:title="All"
@@ -15,9 +16,20 @@
         android:id="@+id/the_park"
         android:title="The Park"
         app:showAsAction="never"/>
+
     <item
         android:id="@+id/park_main"
         android:title="Park-Main"
+        app:showAsAction="never"/>
+
+    <item
+        android:id="@+id/demo_gate"
+        android:title="Demo-Gate"
+        app:showAsAction="never"/>
+        -->
+    <item
+        android:id="@+id/filter"
+        android:title="Choose Gates"
         app:showAsAction="never"/>
 
 </menu>
